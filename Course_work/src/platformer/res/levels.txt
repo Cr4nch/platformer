@@ -1,0 +1,3 @@
+2
+FirstLevel /platformer/res/level01.png
+SecondLevel /platformer/res/level2.png
