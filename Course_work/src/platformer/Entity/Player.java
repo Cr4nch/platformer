@@ -37,6 +37,7 @@ public class Player extends Entity{
     y+=velY;
    // falling=false;
     
+    
     if(invincible){
       if(facing==0){
          handler.addTile(new Trail(x,y,width,height,false,Id.trail,handler,

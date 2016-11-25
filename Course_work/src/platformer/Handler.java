@@ -490,9 +490,10 @@ public class Handler{
     return map;
   }
   
-  public void updatePlayer(Player player,DatagramPacket packet){
+  public void updatePlayer(DatagramPacket packet){
   	try{
   	byte[] data = packet.getData();
+  	Player player;
   	if(new String(data,0,4).compareTo("upd ")!=0)return;
   	int pos=4;
   	if(data[pos]!=42)return;
@@ -500,15 +501,21 @@ public class Handler{
     while(data[posEnd]!=42)posEnd++;
     String name=new String(data,pos+1,posEnd-pos-1,"UTF-8");
     pos=posEnd-1; 
-    if(name.compareTo(player.name)!=0)return;
-    byte velX=data[++pos];
-    byte velY=data[++pos];
-    byte state=data[++pos];
-    byte facing=data[++pos];
-    player.setVelX(velX);
-    player.setVelY(velY);
-    player.setState(state);
-    player.setFacing(facing);
+    for(Entity e:entity){
+   	 if(e instanceof Player)
+   		 if(((Player)e).name.compareTo(name)==0){
+   			 player=((Player)e); 
+   	    byte velX=data[++pos];
+   	    byte velY=data[++pos];
+   	    byte state=data[++pos];
+   	    byte facing=data[++pos];
+   	    player.setVelX(velX);
+   	    player.setVelY(velY);
+   	    player.setState(state);
+   	    player.setFacing(facing);
+   		 }
+    }
+
   	}catch(UnsupportedEncodingException e){
   		e.printStackTrace();
   	}

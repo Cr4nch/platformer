@@ -224,6 +224,7 @@ public class Game  extends Canvas implements Runnable{
   
   public void tick(){
     if(playing)handler.tick();
+    synchronized(handler){
     for(Entity e:handler.entity){
       if(e.getId()==Id.player )
       //  if(!e.goingDownPipe)
@@ -232,6 +233,7 @@ public class Game  extends Canvas implements Runnable{
       			cam.tick(e);
       	
       	}
+    }
     }
     if(showDeathScreen&&playing)deathScreenTime++;
     if(deathScreenTime>=40){

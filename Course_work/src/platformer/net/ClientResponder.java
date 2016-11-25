@@ -81,8 +81,9 @@ public class ClientResponder extends Thread{
             user.die();
             return;
           }else if(cmd.compareTo("upd ")==0){
+          	System.out.println("RECEIVED UPDATE");
           	new BroadcastNotifer(parentServer,packet,name);
-          	handler.updatePlayer(user,packet);
+          	handler.updatePlayer(packet);
           }else{
           	
           }

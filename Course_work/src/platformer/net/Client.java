@@ -8,9 +8,11 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
 
 import platformer.Game;
 import platformer.Handler;
+import platformer.Entity.Player;
 
 public class Client extends Thread{
   private InetAddress address;
@@ -64,10 +66,66 @@ public class Client extends Thread{
     	e.printStackTrace();
     }
     
-    
+    while(true){
+    	try{
+    	byte[] buffer = new byte[1024];
+    	DatagramPacket packet = new DatagramPacket(buffer,buffer.length);
+    	socket.receive(packet);
+    	String sign = new String(packet.getData(),0,4);
+    	if(sign.compareTo("upd ")==0){
+    		Game.handler.updatePlayer(packet);
+    	}else if(sign.compareTo("kill ")==0)
+    		break;
+    	}catch(IOException e){
+    		e.printStackTrace();
+    	}
+    }
     
     
     System.out.println("[*] Client Stoped!");
+  }
+  
+  public boolean sendUpdate(Player player){
+  	System.out.println("SEND UPDATE");
+  	try{
+  		String msg="upd player "+player.name;
+  		byte[] msgb = msg.getBytes("UTF-8");
+  		byte[] data = new byte[1024];
+  		int pos=msgb.length;
+  		for(int i=0;i<msgb.length;i++){
+  			data[i]=msgb[i];
+  		}
+  		data[pos]=42;
+      byte[] bytes = ByteBuffer.allocate(4).putInt(player.getX()).array();
+      for(int k=0;k<bytes.length;k++)data[++pos]=bytes[k];
+
+      bytes = ByteBuffer.allocate(4).putInt(player.getY()).array();
+      for(int k=0;k<bytes.length;k++)data[++pos]=bytes[k];
+      data[++pos]=(byte)player.getVelX();
+      data[++pos]=(byte)player.getVelY();
+      if(player instanceof Player){
+      data[++pos]=((Player)player).getState();
+      data[++pos]=((Player)player).getFacing();  
+      
+      DatagramPacket packet = new DatagramPacket(data,data.length,address,port);
+      socket.send(packet);
+      }
+      data[++pos]=127;
+  	
+  	}catch(UnsupportedEncodingException e){
+  		return false;
+  	}catch(IOException e){
+  		e.printStackTrace();
+  	}
+  	return true;
+  }
+  
+  public boolean disconnect(){
+  	return true;
+  }
+  
+  public boolean respawn(){
+  	return true;
   }
   
   public void requestMap()

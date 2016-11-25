@@ -100,12 +100,17 @@ public class KeyInput implements KeyListener{
         }
         break;
     }
-    }
+    	if(Game.multi){
+    		Game.client.sendUpdate((Player)en);
+    	}
+      }
     }
   }
   
   @Override
   public void keyReleased(KeyEvent event){
+  	
+  	
     int key = event.getKeyCode(); 
     for(Entity en:Game.handler.entity){
       if(en.id == Id.player){
@@ -132,8 +137,12 @@ public class KeyInput implements KeyListener{
       case KeyEvent.VK_SPACE:
         fire = true;
         break;
+    
     }
+    if(Game.multi){
+    	Game.client.sendUpdate((Player)en);
     }
+      }
    }
   }
   
