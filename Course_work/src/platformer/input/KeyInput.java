@@ -12,22 +12,66 @@ import platformer.Tile.Tile;
 
 public class KeyInput implements KeyListener{
   
-  private boolean fire = true;
+  private static boolean fire = true;
+  
+  
+  public static void wPressed(Player p){
+    for(int j =0; j<Game.handler.tile.size();j++){
+      Tile t = Game.handler.tile.get(j);
+      if(t.getId()==Id.pipe){
+        if(p.getBoundsTop().intersects(t.getBounds())){
+          if(!p.goingDownPipe){
+          //  en.setVelX(0);
+            p.goingDownPipe=true;
+          }
+        }
+      }
+    }
+     if(!p.jumping) {
+       p.jumping=true;
+      p.gravity=9.0;
+      Game.jump.play();
+     }  	
+  }
+  
+  public static void sPressed(Player p){
+    for(int j =0; j<Game.handler.tile.size();j++){
+      Tile t = Game.handler.tile.get(j);
+      if(t.getId()==Id.pipe){
+        if(p.getBoundsBottom().intersects(t.getBounds())){
+          if(!p.goingDownPipe){
+          //  en.setVelX(0);
+            p.goingDownPipe=true;
+          }
+        }
+      }
+    }
+  }
+  
+  public static void aPressed(Player p){
+    p.facing=0;
+    p.setVelX(-5);
+  }
+  
+  public static void dPressed(Player p){
+    p.facing=1;
+    p.setVelX(5);
+  }
+  
+  public static void spacePressed(Player p){
+    
+    if(p.facing==0&&fire)
+      Game.handler.addEntity(new FireBall(p.getX()-24,p.getY()+12,24,24,true,Id.fireball,p.handler,p.facing));
+    if(p.facing==1&&fire)
+      Game.handler.addEntity(new FireBall(p.getX()+p.getWidth(),p.getY()+12,24,24,true,Id.fireball,p.handler,p.facing));
+    fire = false;
+  }
   
   @Override 
   public void keyPressed(KeyEvent event){
     int key = event.getKeyCode();
     
-    if(!Game.playing/*&&Launcher.menuType==2*/)   { 
-      if(key>=KeyEvent.VK_A && key<=KeyEvent.VK_Z){
-        Game.username+=(char)key;
-        return; 
-      }else if(key==KeyEvent.VK_BACK_SPACE){
-        if(Game.username.length()>2){
-          Game.username=Game.username.substring(0,Game.username.length()-2);
-        }else Game.username="";
-      }
-    }
+
     if(!Game.playing)return;
     
     
@@ -43,71 +87,81 @@ public class KeyInput implements KeyListener{
         if(en.goingDownPipe)return;
     switch(key){
       case KeyEvent.VK_W:
-        for(int j =0; j<Game.handler.tile.size();j++){
-         Tile t = Game.handler.tile.get(j);
-         if(t.getId()==Id.pipe){
-           if(en.getBoundsTop().intersects(t.getBounds())){
-             if(!en.goingDownPipe){
-             //  en.setVelX(0);
-               en.goingDownPipe=true;
-             }
-           }
-         }
-       }
-        if(!en.jumping) {
-          en.jumping=true;
-         en.gravity=9.0;
-         Game.jump.play();
-        }
+      	wPressed((Player)en);
+      	if(Game.multi){
+      		Game.client.sendUpdate(key,(byte)0);
+      	}
         //en.setVelY(-5);
         break;
      case KeyEvent.VK_S:
-       for(int j =0; j<Game.handler.tile.size();j++){
-         Tile t = Game.handler.tile.get(j);
-         if(t.getId()==Id.pipe){
-           if(en.getBoundsBottom().intersects(t.getBounds())){
-             if(!en.goingDownPipe){
-             //  en.setVelX(0);
-               en.goingDownPipe=true;
-             }
-           }
-         }
-       }
+    	 sPressed((Player)en);
+     	if(Game.multi){
+    		Game.client.sendUpdate(key,(byte)0);
+    	}
         break;
       case KeyEvent.VK_A:
-        en.facing=0;
-        en.setVelX(-5);
+      	aPressed((Player)en);
+      	if(Game.multi){
+      		Game.client.sendUpdate(key,(byte)0);
+      	}
         break;
       case KeyEvent.VK_D:
-        en.facing=1;
-        en.setVelX(5);
+      	dPressed((Player)en);
+      	if(Game.multi){
+      		Game.client.sendUpdate(key,(byte)0);
+      	}
         break;
       case KeyEvent.VK_Q:
         en.die();
+      	if(Game.multi){
+      		Game.client.sendUpdate(key,(byte)0);
+      	}
         break;
       case KeyEvent.VK_SPACE:
-        
-        if(en.facing==0&&fire)
-          Game.handler.addEntity(new FireBall(en.getX()-24,en.getY()+12,24,24,true,Id.fireball,en.handler,en.facing));
-        if(en.facing==1&&fire)
-          Game.handler.addEntity(new FireBall(en.getX()+en.getWidth(),en.getY()+12,24,24,true,Id.fireball,en.handler,en.facing));
-        fire = false;
+      	spacePressed((Player)en);
+      	if(Game.multi){
+      		Game.client.sendUpdate(key,(byte)0);
+      	}
         break;
       case KeyEvent.VK_ESCAPE:
         if(Game.playing){
           Game.playing=false;
           Game.guiParent.changeLayout("PAUSE");
         }
+      	if(Game.multi){
+      		Game.client.sendUpdate(key,(byte)0);
+      	}
         break;
     }
-    	if(Game.multi){
-    		Game.client.sendUpdate((Player)en);
-    	}
+
       }
     }
   }
   
-  @Override
+
+ 
+  public static void wReleased(Player p){
+    p.setVelY(0); 	
+  }
+  
+  public static void sReleased(Player p){
+
+  }
+  
+  public static void aReleased(Player p){
+    p.setVelX(0);
+  }
+  
+  public static void dReleased(Player p){
+    p.setVelX(0);
+  }
+  
+  public static void spaceReleased(Player p){
+    fire = true;
+  }
+  
+
+	@Override
   public void keyReleased(KeyEvent event){
   	
   	
@@ -123,24 +177,33 @@ public class KeyInput implements KeyListener{
       	
     switch(key){
       case KeyEvent.VK_W:
-        en.setVelY(0);
+      	wReleased((Player)en);
+        if(Game.multi){
+        	Game.client.sendUpdate(key,(byte)1);
+        }
         break;
    /*   case KeyEvent.VK_S:
         en.setVelY(0);
         break;*/
       case KeyEvent.VK_A:
-        en.setVelX(0);
+      	aReleased((Player)en);
+        if(Game.multi){
+        	Game.client.sendUpdate(key,(byte)1);
+        }
         break;
       case KeyEvent.VK_D:
-        en.setVelX(0);
+      	dReleased((Player)en);
+        if(Game.multi){
+        	Game.client.sendUpdate(key,(byte)1);
+        }
         break;
       case KeyEvent.VK_SPACE:
-        fire = true;
+      	spaceReleased((Player)en);
+        if(Game.multi){
+        	Game.client.sendUpdate(key,(byte)1);
+        }
         break;
     
-    }
-    if(Game.multi){
-    	Game.client.sendUpdate((Player)en);
     }
       }
    }

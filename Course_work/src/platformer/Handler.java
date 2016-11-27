@@ -13,6 +13,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 
 import platformer.Entity.Coin;
@@ -28,6 +29,7 @@ import platformer.Tile.PowerUpBlock;
 import platformer.Tile.Tile;
 import platformer.Tile.Wall;
 import platformer.Tile.Pipe;
+import platformer.input.KeyInput;
 
 public class Handler{
   public LinkedList<Entity> entity = new LinkedList<Entity>();
@@ -494,28 +496,62 @@ public class Handler{
   	try{
   	byte[] data = packet.getData();
   	Player player;
-  	if(new String(data,0,4).compareTo("upd ")!=0)return;
+  	if(new String(data,0,4).compareTo("upd ")!=0){
+  		System.out.println("Error: invalid update signature!");
+  		return;
+  	}
   	int pos=4;
-  	if(data[pos]!=42)return;
     int posEnd=pos;
     while(data[posEnd]!=42)posEnd++;
-    String name=new String(data,pos+1,posEnd-pos-1,"UTF-8");
-    pos=posEnd-1; 
+    String name=new String(data,pos,posEnd-pos,"UTF-8");
+    pos=posEnd; 
+  	if(data[pos]!=42){
+  		System.out.println("Error: invalid canary byte!");
+  		return;  		
+  	}
+  	pos++;
+    System.out.println("Update player "+name);
     for(Entity e:entity){
    	 if(e instanceof Player)
    		 if(((Player)e).name.compareTo(name)==0){
    			 player=((Player)e); 
-   	    byte velX=data[++pos];
-   	    byte velY=data[++pos];
-   	    byte state=data[++pos];
-   	    byte facing=data[++pos];
-   	    player.setVelX(velX);
-   	    player.setVelY(velY);
-   	    player.setState(state);
-   	    player.setFacing(facing);
+         byte[] bytes = new byte[4];
+         System.arraycopy(data,pos,bytes,0,4);
+         ByteBuffer wrapped = ByteBuffer.wrap(bytes); 
+         pos+=4;
+         int key=wrapped.getInt();
+         byte rOrp=data[pos];
+         System.out.println("KEY: "+key);
+         System.out.println("rOrp: "+rOrp);
+         switch(key){
+         case KeyEvent.VK_W:{
+        	 if(rOrp==0)KeyInput.wPressed(player);
+        	 else if(rOrp==1)KeyInput.wReleased(player);
+        	 break;
+         }
+         case KeyEvent.VK_S:{
+        	 if(rOrp==0)KeyInput.sPressed(player);
+        	 else if(rOrp==1)KeyInput.sReleased(player);
+        	 break;
+         }
+         case KeyEvent.VK_A:{
+        	 if(rOrp==0)KeyInput.aPressed(player);
+        	 else if(rOrp==1)KeyInput.aReleased(player);
+        	 break;
+         }
+         case KeyEvent.VK_D:{
+        	 if(rOrp==0)KeyInput.dPressed(player);
+        	 else if(rOrp==1)KeyInput.dReleased(player);
+        	 break;
+         }
+         case KeyEvent.VK_SPACE:{
+        	 if(rOrp==0)KeyInput.spacePressed(player);
+        	 else if(rOrp==1)KeyInput.spaceReleased(player);
+        	 break;
+         }
    		 }
     }
-
+    }
   	}catch(UnsupportedEncodingException e){
   		e.printStackTrace();
   	}

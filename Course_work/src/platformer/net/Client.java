@@ -34,10 +34,11 @@ public class Client extends Thread{
   }
   
   public void run(){
-    System.out.println("[*] Client Started!");
+    System.out.println("[*] Client "+Game.username+" Started!");
     
     try{
-      String request = "JOIN "+Game.username;
+    	
+      String request = "JOIN "+Game.username+'#';
       byte[] buffer = request.getBytes("UTF-8");
       DatagramPacket packet = new DatagramPacket(buffer,buffer.length,address,port);
       socket.send(packet);
@@ -68,6 +69,7 @@ public class Client extends Thread{
     
     while(true){
     	try{
+    	System.out.println("WAIT FOR PACKET");
     	byte[] buffer = new byte[1024];
     	DatagramPacket packet = new DatagramPacket(buffer,buffer.length);
     	socket.receive(packet);
@@ -85,10 +87,10 @@ public class Client extends Thread{
     System.out.println("[*] Client Stoped!");
   }
   
-  public boolean sendUpdate(Player player){
+  public boolean sendUpdate(int key,byte rOrp){
   	System.out.println("SEND UPDATE");
   	try{
-  		String msg="upd player "+player.name;
+  		String msg="upd "+Game.username;
   		byte[] msgb = msg.getBytes("UTF-8");
   		byte[] data = new byte[1024];
   		int pos=msgb.length;
@@ -96,21 +98,16 @@ public class Client extends Thread{
   			data[i]=msgb[i];
   		}
   		data[pos]=42;
-      byte[] bytes = ByteBuffer.allocate(4).putInt(player.getX()).array();
-      for(int k=0;k<bytes.length;k++)data[++pos]=bytes[k];
 
-      bytes = ByteBuffer.allocate(4).putInt(player.getY()).array();
+      byte[] bytes = ByteBuffer.allocate(4).putInt(key).array();
       for(int k=0;k<bytes.length;k++)data[++pos]=bytes[k];
-      data[++pos]=(byte)player.getVelX();
-      data[++pos]=(byte)player.getVelY();
-      if(player instanceof Player){
-      data[++pos]=((Player)player).getState();
-      data[++pos]=((Player)player).getFacing();  
+      data[++pos]=rOrp;
+      data[++pos]=127;
+
       
       DatagramPacket packet = new DatagramPacket(data,data.length,address,port);
       socket.send(packet);
-      }
-      data[++pos]=127;
+      
   	
   	}catch(UnsupportedEncodingException e){
   		return false;

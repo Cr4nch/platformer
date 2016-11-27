@@ -19,6 +19,7 @@ public class BroadcastNotifer extends Thread {
 	}
 	
 	public void run(){
+		System.out.println("BroadcastNotifer started!");
 		HashMap<String,ClientResponder> clients=new HashMap<String,ClientResponder>();
 		clients=server.getClients();
 		for(Map.Entry e:clients.entrySet()){
@@ -26,6 +27,7 @@ public class BroadcastNotifer extends Thread {
 			ClientResponder client=(ClientResponder) e.getValue();
 			if(name.compareTo(nameClient)!=0){
 				try{
+				System.out.print("Send update to "+client.name);
 				client.sendUpdate(packet);
 				}catch(IOException event){
 					event.printStackTrace();

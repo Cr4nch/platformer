@@ -223,17 +223,17 @@ public class Game  extends Canvas implements Runnable{
   }
   
   public void tick(){
+  	//System.out.println("USERNAME: "+username);
     if(playing)handler.tick();
-    synchronized(handler){
     for(Entity e:handler.entity){
       if(e.getId()==Id.player )
       //  if(!e.goingDownPipe)
       	if(e instanceof Player){
+      		//System.out.println("Player: "+((Player)e).name);
       		if(((Player)(e)).name.compareTo(username)==0)
       			cam.tick(e);
       	
       	}
-    }
     }
     if(showDeathScreen&&playing)deathScreenTime++;
     if(deathScreenTime>=40){

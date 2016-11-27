@@ -17,7 +17,7 @@ public class ClientResponder extends Thread{
   private InetAddress address;
   private int port;
   private Handler handler;
-  private String name;
+  public String name;
   private Player user;
   private Server parentServer;
   
@@ -39,7 +39,7 @@ public class ClientResponder extends Thread{
       this.name=address.toString()+":"+port;
     }else{
     	int pos=0;
-    	while(parts[1].charAt(pos)!=0)pos++;
+    	while(parts[1].charAt(pos)!="#".charAt(0))pos++;
     	this.name=parts[1].substring(0,pos);
     }
     
@@ -82,8 +82,9 @@ public class ClientResponder extends Thread{
             return;
           }else if(cmd.compareTo("upd ")==0){
           	System.out.println("RECEIVED UPDATE");
-          	new BroadcastNotifer(parentServer,packet,name);
           	handler.updatePlayer(packet);
+          	if(Game.localServer==true)
+          		(new BroadcastNotifer(parentServer,packet,name)).start();
           }else{
           	
           }
