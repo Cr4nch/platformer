@@ -33,9 +33,9 @@ public class MenuPanel extends JPanel{
     setStyle(multiplayerButton);
     
     add(startButton,gbc);
+    add(multiplayerButton,gbc);
     add(topButton,gbc);
     add(exitButton,gbc);
-    add(multiplayerButton,gbc);
     
     
     startButton.addActionListener(new ActionListener(){

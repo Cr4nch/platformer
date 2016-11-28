@@ -1,6 +1,7 @@
 package platformer.graphics;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Insets;
@@ -21,15 +22,16 @@ public class CompanyPanel extends JPanel{
     JButton playButton = new JButton("PLAY");
     JButton backButton = new JButton("BACK");
     JLabel nameLabel = new JLabel("Enter name");
-    final JTextField nameField = new JTextField("",20);
+    final JTextField nameField = new JTextField("",30);
     
     Font labelFont = new Font("Jokerman",Font.BOLD | Font.ITALIC,40);
     nameLabel.setFont(labelFont);
     nameLabel.setForeground(Color.GREEN);
     
     nameField.setBorder(BorderFactory.createEmptyBorder());
-    nameField.setBackground(new Color(0,0,0,30)); 
+    nameField.setBackground(new Color(0,0,0,70)); 
     nameField.setForeground(Color.GREEN);
+    nameField.setPreferredSize(new Dimension(40,40));
     
     
     add(playButton);

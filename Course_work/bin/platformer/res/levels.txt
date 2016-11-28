@@ -1,3 +1,8 @@
-2
-FirstLevel /platformer/res/level01.png
-SecondLevel /platformer/res/level2.png
+6
+FirstLevel /platformer/res/velel01_final.png
+SecondLevel /platformer/res/velel02_final.png
+ThirdLevel /platformer/res/velel03_final.png
+FourthLevel /platformer/res/velel04_final.png
+FifthLevel /platformer/res/velel05_final.png
+ArenaLevel /platformer/res/level2.png
+

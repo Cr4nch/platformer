@@ -89,11 +89,14 @@ public class Game  extends Canvas implements Runnable{
     maintheme = new Song("main.wav");
     
     try{
-    image = new  BufferedImage[2];
+    image = new  BufferedImage[5];
     menuBackground = ImageIO.read(getClass().getResource("/platformer/res/menu_background.png"));
     background = ImageIO.read(getClass().getResource("/platformer/res/background.png"));
-    image[0] = ImageIO.read(getClass().getResource("/platformer/res/level01.png"));
-    image[1] = ImageIO.read(getClass().getResource("/platformer/res/level2.png"));
+    image[0] = ImageIO.read(getClass().getResource("/platformer/res/velel01_final.png"));
+    image[1] = ImageIO.read(getClass().getResource("/platformer/res/velel02_final.png"));
+    image[2] = ImageIO.read(getClass().getResource("/platformer/res/velel03_final.png"));
+    image[3] = ImageIO.read(getClass().getResource("/platformer/res/velel04_final.png"));
+    image[4] = ImageIO.read(getClass().getResource("/platformer/res/velel05_final.png"));
     }catch(IOException e){e.printStackTrace();}
     
     cam = new Camera();

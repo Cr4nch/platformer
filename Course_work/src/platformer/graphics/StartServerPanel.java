@@ -1,6 +1,7 @@
 package platformer.graphics;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
@@ -12,7 +13,10 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 
+import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -32,40 +36,53 @@ public class StartServerPanel extends JPanel{
     JButton startButton = new JButton("START");
     JLabel textLabel = new JLabel("SELECT MAP");
     JLabel nameLabel = new JLabel("ENTER NAME");
-    final JTextField nameField = new JTextField(10);
+    final JTextField nameField = new JTextField(20);
     
+    Font labelFont = new Font("Jokerman",Font.BOLD | Font.ITALIC,40);
+    nameLabel.setFont(labelFont);
+    nameLabel.setForeground(Color.GREEN);
+    textLabel.setFont(labelFont);
+    textLabel.setForeground(Color.GREEN);
+    
+    nameField.setBorder(BorderFactory.createEmptyBorder());
+    nameField.setBackground(new Color(0,0,0,70)); 
+    nameField.setForeground(Color.GREEN);
+    nameField.setPreferredSize(new Dimension(300,30));
     
     String[] items = new String[0];
-    String[] levels = new String[0];
+    final HashMap<String,String> levels= new HashMap<String,String>();
     try{
       BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/platformer/res/levels.txt")));
       String line = br.readLine();
       int n=Integer.parseInt(line);
       items=new String[n];
-      levels=new String[n];
       for(int i=0;i<n;i++){
         line=br.readLine();
         if(line==null)throw new IOException();
         String[] parts =line.split(" ");
         items[i]=parts[0];
-        levels[i]=parts[1];
+        levels.put(parts[0], parts[1]);
       }
       br.close();
     }catch(IOException e){
       e.printStackTrace();
     }
     
-    JComboBox mapBox = new JComboBox(items);
+    final JComboBox mapBox = new JComboBox(items);
+    mapBox.setBackground(new Color(0,0,0,70));
+    mapBox.setForeground(Color.GREEN);
+   
     setLayout(new GridBagLayout());
+    
     setStyle(breakButton);
     setStyle(startButton);
     
     addComponent(breakButton,0,0,1,1,GridBagConstraints.CENTER);
     addComponent(textLabel,0,1,1,1,GridBagConstraints.CENTER);
     addComponent(mapBox,0,2,1,1,GridBagConstraints.CENTER);
-    addComponent(startButton,0,4,1,1,GridBagConstraints.CENTER);
-    addComponent(nameLabel,0,3,1,1,GridBagConstraints.EAST);
-    addComponent(nameField,1,3,1,1,GridBagConstraints.WEST);
+    addComponent(startButton,0,5,1,1,GridBagConstraints.CENTER);
+    addComponent(nameLabel,0,3,1,1,GridBagConstraints.CENTER);
+    addComponent(nameField,0,4,1,1,GridBagConstraints.CENTER);
     
     breakButton.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e){
@@ -84,7 +101,13 @@ public class StartServerPanel extends JPanel{
         Game.multi=true;
         Game.localServer=true;
         Game.username=nameField.getText();
-        Game.handler.createLevel(Game.image[0]);
+        String level=levels.get((String)mapBox.getSelectedItem());
+        System.out.println("LEVEL: "+level);
+        try {
+					Game.handler.createLevel(ImageIO.read(getClass().getResource(level)));
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
         Game.client = new Client("localhost",7777,Game.handler);
         Game.client.start();
         Game.playing=true;   
