@@ -52,12 +52,19 @@ public abstract class Entity{
   
   public void die(){
     if(getId()==Id.player){
+    	
+    if(!Game.multi){
     handler.removeEntity(this);
     Game.loselife.play();
     Game.lives--;
     Game.showDeathScreen =true;
-    
     if(Game.lives<=0){Game.gameOver = true;addRecord();}
+    }
+    else{
+    		if(Game.username.compareTo(((Player)this).name)==0)Game.client.sendRespawn();
+    }
+    
+    
     }else
       handler.removeEntity(this);
   }

@@ -9,10 +9,10 @@ import java.util.Map.Entry;
 public class BroadcastNotifer extends Thread {
 	private String name;
 	private Server server;
-	private DatagramPacket packet;
+	private byte[]  packet;
 	
 	
-	BroadcastNotifer(Server server,DatagramPacket packet,String name){
+	BroadcastNotifer(Server server,byte[] packet,String name){
 		this.name=name;
 		this.server=server;
 		this.packet=packet;
@@ -25,7 +25,8 @@ public class BroadcastNotifer extends Thread {
 		for(Map.Entry e:clients.entrySet()){
 			String nameClient=(String) e.getKey();
 			ClientResponder client=(ClientResponder) e.getValue();
-			if(name.compareTo(nameClient)!=0){
+			//if(name.compareTo(nameClient)!=0)
+			{
 				try{
 				System.out.print("Send update to "+client.name);
 				client.sendUpdate(packet);

@@ -219,7 +219,6 @@ public class Game  extends Canvas implements Runnable{
     
     if(playing)g.translate(cam.getX(),cam.getY());
     if(!showDeathScreen&&playing) handler.render(g);
-   // else if(!playing)launcher.render(g);
    
     g.dispose();
     bs.show();
@@ -259,7 +258,8 @@ public class Game  extends Canvas implements Runnable{
         System.out.println("GAME OVER");
         showDeathScreen = false;
         deathScreenTime = 0;
-   //     launcher.menuType=1;
+        Game.playing=false;
+        Game.guiParent.changeLayout("MENU");
         playing = false;
         gameOver = false;
       }

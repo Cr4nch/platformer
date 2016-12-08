@@ -178,6 +178,9 @@ public class Handler{
     try{
       int pos=5;
       
+
+      
+      
       while(data[pos]!=127){
         if(data[pos]!=42){
         	System.out.println("Canary byte!!! "+pos+" "+data[pos]);
@@ -303,9 +306,23 @@ public class Handler{
         }
         pos++;
       }
+      
+      pos++;
+      byte[] bytes = new byte[4];
+      System.arraycopy(data,pos,bytes,0,4);
+      ByteBuffer wrapped = ByteBuffer.wrap(bytes); 
+      Game.spawnX=wrapped.getInt();
+      pos+=4;
+      System.arraycopy(data,pos,bytes,0,4);
+      wrapped = ByteBuffer.wrap(bytes); 
+      Game.spawnY=wrapped.getInt();
+      
      }catch(Exception e){
        System.out.println("[!] Data corrupted!");
     }
+    
+
+    
     System.out.println("Level created!!!");
     System.out.println("Tile: "+tile.size());
     System.out.println("Entity: "+entity.size());
@@ -324,6 +341,8 @@ public class Handler{
     for(int i=0;i<sign.length;i++)map[i]=sign[i];
     int pos=5;
     map[pos]=42;
+    
+    
     for(int i=sended;i<tile.size();i++){
     	if(pos>=2000)break;
       Tile t = tile.get(i);
@@ -475,6 +494,12 @@ public class Handler{
         sended++;
       }
     map[++pos]=127;
+    
+    byte[] bytes = ByteBuffer.allocate(4).putInt(Game.spawnX).array();
+    for(int k=0;k<bytes.length;k++)map[++pos]=bytes[k];
+    bytes = ByteBuffer.allocate(4).putInt(Game.spawnY).array();
+    for(int k=0;k<bytes.length;k++)map[++pos]=bytes[k];
+    
     System.out.println("map size:"+pos);
     
     try{
@@ -492,9 +517,54 @@ public class Handler{
     return map;
   }
   
-  public void updatePlayer(DatagramPacket packet){
+  public void respawnPlayer(byte[] data){
   	try{
-  	byte[] data = packet.getData();
+  	//byte[] data = packet.getData();
+  	Player player;
+  	if(new String(data,0,4).compareTo("resp")!=0){
+  		System.out.println("Error: invalid respawn signature!");
+  		return;
+  	}
+  	int pos=4;
+    int posEnd=pos;
+    while(data[posEnd]!=42)posEnd++;
+    String name=new String(data,pos,posEnd-pos,"UTF-8");
+    pos=posEnd; 
+  	if(data[pos]!=42){
+  		System.out.println("Error: invalid canary byte!");
+  		return;  		
+  	}
+  	pos++;
+    System.out.println("Update player "+name);
+    for(Entity e:entity){
+   	 if(e instanceof Player)
+   		 if(((Player)e).name.compareTo(name)==0){
+   			 player=((Player)e); 
+         byte[] bytes = new byte[4];
+         System.arraycopy(data,pos,bytes,0,4);
+         ByteBuffer wrapped = ByteBuffer.wrap(bytes); 
+         pos+=4;
+         int x=wrapped.getInt();
+         
+         System.arraycopy(data,pos,bytes,0,4);
+         wrapped = ByteBuffer.wrap(bytes); 
+         pos+=4;
+         int y=wrapped.getInt();
+         ((Player)e).setX(x);
+         ((Player)e).setY(y);
+         ((Player)e).setVelX(0);
+         ((Player)e).setVelY(0);
+    }
+    }
+  	}catch(UnsupportedEncodingException e){
+  		e.printStackTrace();
+  	}
+  	System.out.println("USER RESPAWNED");  	
+  }
+  
+  public void updatePlayer(byte[] data){
+  	try{
+  	//byte[] data = packet.getData();
   	Player player;
   	if(new String(data,0,4).compareTo("upd ")!=0){
   		System.out.println("Error: invalid update signature!");
