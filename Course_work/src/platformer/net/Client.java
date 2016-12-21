@@ -69,30 +69,57 @@ public class Client extends Thread{
     }
     
     try{
-    	if(Game.localServer==false)
-      requestMap();
+    	
+    	
+    	if(Game.localServer==false){
+    		Game.semph.acquire();
+    		//System.out.println("Game use semph");
+    		requestMap();
+    		Game.semph.release();
+    	}
     }catch(UnsupportedEncodingException e){
     	e.printStackTrace();
     }catch(IOException e){
     	e.printStackTrace();
+    }catch(InterruptedException e){
+    	System.out.println("SEMAPHORE CLIENT RESPONDER ERROR");
     }
     
     while(true){
     	try{
+    		
+    		
     	System.out.println("WAIT FOR PACKET");
     	byte[] buffer = new byte[1024];
     	//DatagramPacket packet = new DatagramPacket(buffer,buffer.length);
     	in.read(buffer);
     	String sign = new String(buffer,0,4);
+    	
+    	
+    	Game.semph.acquire();
+    //	System.out.println("Client use semph");
+    	
+    	
+    	synchronized(Game.handler){
     	if(sign.compareTo("upd ")==0){
     		Game.handler.updatePlayer(buffer);
     	}else if(sign.compareTo("kill ")==0)
     		break;
     	else if(sign.compareTo("resp")==0)
     		Game.handler.respawnPlayer(buffer);
+    	else if(sign.compareTo("add ")==0){
+    		Game.handler.addPlayer(buffer);
+    	}
+    	
+    	}
+    	
+    	Game.semph.release();
+    	
     	}catch(IOException e){
     		e.printStackTrace();
-    	}
+    	}catch(InterruptedException e){
+      	System.out.println("SEMAPHORE CLIENT RESPONDER ERROR");
+      }
     }
     
     

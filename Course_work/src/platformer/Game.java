@@ -10,6 +10,7 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.concurrent.Semaphore;
 
 import javax.imageio.ImageIO;
 
@@ -29,6 +30,7 @@ public class Game  extends Canvas implements Runnable{
   public static String username="";
   
   public static GameGUI guiParent;
+  public static final Semaphore semph = new Semaphore(1);
   
   public static  int coins = 0;
   public static int lives = 3;
@@ -61,6 +63,8 @@ public class Game  extends Canvas implements Runnable{
   public static Sprite[] goomba;
   public static Sprite[] flag;
   public static Sprite[] particle;
+  public static Sprite[] towerBoss;
+  public static Sprite[] koopas;
   public static Sprite coin[];
   
   public static Song jump;
@@ -118,6 +122,12 @@ public class Game  extends Canvas implements Runnable{
     flag = new Sprite[3];
     particle = new Sprite[6];
     coin = new Sprite[8];
+    towerBoss = new Sprite[5];
+    koopas = new Sprite[5];
+    for(int i=8;i<towerBoss.length+8;i++)
+    	towerBoss[i-8]= new Sprite(sheet,i+1,1);
+    for(int i=8;i<koopas.length+8;i++)
+    	koopas[i-8]= new Sprite(sheet,i+1,2);
     for(int i=0;i<coin.length;i++)
       coin[i]= new Sprite(sheet,i+1,4);
     for(int i=0;i<player.length;i++)
@@ -172,12 +182,26 @@ public class Game  extends Canvas implements Runnable{
       long  now =  System.nanoTime();
       delta+=(now-lastTime)/ns;
       lastTime=now;
-      while(delta>=1){
-        tick();
-        ticks++;
-        delta--;
+      
+      try {
+				semph.acquire();
+				//System.out.println("Game use semph");
+			} catch (InterruptedException e) {
+				System.out.println("Game SEMAPHOR ERROR");
+				e.printStackTrace();
+			}
+      
+      synchronized(handler){ 
+      	while(delta>=1){
+        	tick();
+        	ticks++;
+        	delta--;
+      	}
+      	render();
       }
-      render();
+      
+      semph.release();
+      
       frames++;
       if(System.currentTimeMillis()-timer>1000){
         timer+=1000;
@@ -186,6 +210,7 @@ public class Game  extends Canvas implements Runnable{
         ticks=0;
         
       }
+      
     }
     stop();
   }

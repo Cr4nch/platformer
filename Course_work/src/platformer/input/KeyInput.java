@@ -12,7 +12,7 @@ import platformer.Tile.Tile;
 
 public class KeyInput implements KeyListener{
   
-  private static boolean fire = true;
+  
   
   
   public static void wPressed(Player p){
@@ -60,11 +60,11 @@ public class KeyInput implements KeyListener{
   
   public static void spacePressed(Player p){
     
-    if(p.facing==0&&fire)
+    if(p.facing==0&&p.fire)
       Game.handler.addEntity(new FireBall(p.getX()-24,p.getY()+12,24,24,true,Id.fireball,p.handler,p.facing));
-    if(p.facing==1&&fire)
+    if(p.facing==1&&p.fire)
       Game.handler.addEntity(new FireBall(p.getX()+p.getWidth(),p.getY()+12,24,24,true,Id.fireball,p.handler,p.facing));
-    fire = false;
+    p.fire = false;
   }
   
   @Override 
@@ -157,7 +157,7 @@ public class KeyInput implements KeyListener{
   }
   
   public static void spaceReleased(Player p){
-    fire = true;
+    p.fire = true;
   }
   
 

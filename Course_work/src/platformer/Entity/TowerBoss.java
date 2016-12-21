@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.util.Random;
 
+import platformer.Game;
 import platformer.Handler;
 import platformer.Id;
 import platformer.Tile.Tile;
@@ -15,25 +16,40 @@ public class TowerBoss extends Entity{
   
   public boolean addJumpTime = false;
   private Random random;
+  private int frame;
+  private int frameDelay=0;
   public BossState bossState;
   public int hp;
   public int phaseTime;
+ 
   public boolean attackable = false;
     
   public TowerBoss(int x,int y,int width,int height,boolean soild,Id id,Handler handler,int hp){
     super(x,y,width,height,soild,id,handler);
     this.hp = hp;
     bossState = BossState.IDLE;
+    frameDelay=0;
     random = new Random();
   }
   
   @Override
   public void render(Graphics g){
-    if(bossState==BossState.IDLE||bossState==BossState.SPINNING)g.setColor(Color.YELLOW);
+  /*  if(bossState==BossState.IDLE||bossState==BossState.SPINNING)g.setColor(Color.YELLOW);
     else if(bossState==BossState.RECOVERING)g.setColor(Color.RED);
     else g.setColor(Color.ORANGE);
     
-    g.fillRect(x,y,width,height);
+    g.fillRect(x,y,width,height);*/
+  	
+  	if(velX<0)facing=0;
+  	else if(velX>0)facing=1;
+  	else facing=2;
+
+    if(facing==0)
+      g.drawImage(Game.towerBoss[frame].getBufferedImage(),x,y,width,height,null);
+    else if(facing==1)
+      g.drawImage(Game.towerBoss[frame+2].getBufferedImage(),x,y,width,height,null);
+    else g.drawImage(Game.towerBoss[4].getBufferedImage(),x,y,width,height,null);
+      
   }
   
   @Override
@@ -41,6 +57,17 @@ public class TowerBoss extends Entity{
     x+=velX;
     y+=velY;
   //  System.out.println(velX);
+    
+    if(velX!=0){
+    frameDelay++;
+    if(frameDelay>=10){
+      frame++;
+      if(frame>=2)
+        frame=0;
+      frameDelay=0;
+    }
+    }
+    
     if(hp<=0)die();
     
     phaseTime++;

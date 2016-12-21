@@ -109,7 +109,7 @@ public class Handler{
   public void createLevel(BufferedImage level){
     int width = level.getWidth();
     int height = level.getHeight();
-    
+    count=0;
     for(int y=0;y<height;y++){
       for(int x=0;x< width;x++){
         int pixel = level.getRGB(x,y);
@@ -122,24 +122,48 @@ public class Handler{
         	Game.spawnY=y*64;
         }
         
-        if(red==0&&green==0&&blue==0)addTile(new Wall(x*64,y*64,64,64,true,Id.wall,this));
-        if(red==255&&green==0&&blue==0)addTile(new Magma(x*64,y*64,64,64,true,Id.magma,this));
-        if(red==0&&green==255&&blue==0)addTile(new Flag(x*64,y*64,64,64*5,true,Id.flag,this));
-        if(red==255&&green==250&&blue==0)addEntity(new Coin(x*64,y*64,64,64,true,Id.coin,this));
-        if(red==255&&green==200&&blue==0)addEntity(new PowerStar(x*64,y*64,64,64,true,Id.star,this));
-        if(red==255&&green==255&&blue==0)addTile(new PowerUpBlock(x*64,y*64,64,64,true,Id.powerUp,this,Game.liveMushroom,(byte)1));
-        if(red==255&&green==255&&blue==1)addTile(new PowerUpBlock(x*64,y*64,64,64,true,Id.powerUp,this,Game.mushroom,(byte)0));
-        if(red==0&&(green>123&&green<129)&&blue==0)addTile(new Pipe(x*64,y*64,64,65*15,true,Id.pipe,this,128-green,false));
+        if(red==0&&green==0&&blue==0){
+        	addTile(new Wall(x*64,y*64,64,64,true,Id.wall,this));
+        }
+        if(red==255&&green==0&&blue==0){
+        	addTile(new Magma(x*64,y*64,64,64,true,Id.magma,this));
+        }
+        if(red==0&&green==255&&blue==0){
+        	addTile(new Flag(x*64,y*64,64,64*5,true,Id.flag,this));
+        }
+        if(red==255&&green==250&&blue==0){
+        	addEntity(new Coin(x*64,y*64,64,64,true,Id.coin,this));
+        }
+        if(red==255&&green==200&&blue==0){
+        	addEntity(new PowerStar(x*64,y*64,64,64,true,Id.star,this));
+        }
+        if(red==255&&green==255&&blue==0){
+        	addTile(new PowerUpBlock(x*64,y*64,64,64,true,Id.powerUp,this,Game.liveMushroom,(byte)1));
+        }
+        if(red==255&&green==255&&blue==1){
+        	addTile(new PowerUpBlock(x*64,y*64,64,64,true,Id.powerUp,this,Game.mushroom,(byte)0));
+        }
+        if(red==0&&(green>123&&green<129)
+        		&&blue==0){addTile(new Pipe(x*64,y*64,64,65*15,true,Id.pipe,this,128-green,false));
+        }
         
         
         Player player = new Player(x*64,y*64,64,64,true,Id.player,this);
         player.name=Game.username;
-        if(red==0&&green==0&&blue==255)addEntity(player);
+        if(red==0&&green==0&&blue==255){
+        	addEntity(player);
+        }
         
         //if(red==255&&green==0&&blue==0)addEntity(new Mushroom(x*64,y*64,64,64,true,Id.mushroom,this));
-        if(red==255&&green==119&&blue==1)addEntity(new Goomba(x*64,y*64,64,64,true,Id.goomba,this));
-        if(red==255&&green==119&&blue==0)addEntity(new Koopas(x*64,y*64,64,64,true,Id.koopas,this));
-        if(red==255&&green==0&&blue==255)addEntity(new TowerBoss(x*64,y*64,64,64,true,Id.towerboss,this,100));
+        if(red==255&&green==119&&blue==1){
+        	addEntity(new Goomba(x*64,y*64,64,64,true,Id.goomba,this));
+        }
+        if(red==255&&green==119&&blue==0){
+        	addEntity(new Koopas(x*64,y*64,64,64,true,Id.koopas,this));
+        }
+        if(red==255&&green==0&&blue==255){
+        	addEntity(new TowerBoss(x*64,y*64,64,64,true,Id.towerboss,this,100));
+        }
       }
     }
    /* for(int i=0;i<Game.WIDTH*Game.SCALE/64+1;i++){
@@ -581,7 +605,8 @@ public class Handler{
   	}
   	pos++;
     System.out.println("Update player "+name);
-    for(Entity e:entity){
+    for(int i=0;i<entity.size();i++){
+    	Entity e = entity.get(i);
    	 if(e instanceof Player)
    		 if(((Player)e).name.compareTo(name)==0){
    			 player=((Player)e); 
@@ -628,9 +653,43 @@ public class Handler{
   	System.out.println("USER UPDATED");
   }
   
+  public void addPlayer(byte[] data){
+  	try{
+  	//byte[] data = packet.getData();
+  	if(new String(data,0,4).compareTo("add ")!=0){
+  		System.out.println("Error: invalid add signature!");
+  		return;
+  	}
+  	int pos=4;
+    int posEnd=pos;
+    while(data[posEnd]!=42)posEnd++;
+    String name=new String(data,pos,posEnd-pos,"UTF-8");
+    for(int i=0;i<entity.size();i++){
+    	Entity e = entity.get(i);
+   	 if(e instanceof Player)
+   		 if(((Player)e).name.compareTo(name)==0)
+   			 return;
+    }
+    if(name.compareTo(Game.username)==0)return;
+    pos=posEnd; 
+  	if(data[pos]!=42){
+  		System.out.println("Error: invalid canary byte!");
+  		return;  		
+  	}
+  	Player p = new Player(Game.spawnX,Game.spawnY,64,64,true,Id.player,this);
+  	p.name=name;
+  	addEntity(p);
+
+  	}catch(UnsupportedEncodingException e){
+  		e.printStackTrace();
+  	}
+  	System.out.println("USER ADD");
+  }
+  
   public void clearLevel(){
     entity.clear();
     tile.clear();
+    count=0;
   }
   
 }

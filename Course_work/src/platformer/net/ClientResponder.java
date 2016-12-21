@@ -9,6 +9,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.nio.ByteBuffer;
 
 import platformer.Game;
 import platformer.Handler;
@@ -54,16 +55,43 @@ public class ClientResponder extends Thread{
     
     try{
       String message = "WELCOME";
+      
+      
       byte[] data = message.getBytes("UTF-8");
       //DatagramPacket packet = new DatagramPacket(data,data.length,address,port);
       out.write(data);
+      
+      Game.semph.acquire();
+    //  System.out.println("Responder(init) use semph");
+      
+      synchronized(Game.handler){
       if(!Game.handler.searchPlayer(name)){
       user =new Player(Game.spawnX ,Game.spawnY ,64,64,true,Id.player,Game.handler);
       user.name=this.name;
       Game.handler.addEntity(user);
       }
+      
+      
+     // System.out.println("Responder(init) release semph");
+      Game.semph.release();
+      
+  		String msg="add "+this.name;
+  		byte[] msgb = msg.getBytes("UTF-8");
+  		data = new byte[1024];
+  		int pos=msgb.length;
+  		for(int i=0;i<msgb.length;i++){
+  			data[i]=msgb[i];
+  		}
+  		data[pos]=42;
+  		(new BroadcastNotifer(parentServer,data,Game.username,false)).start();
+            
+      
+      
+      }
     }catch(IOException e){
       System.out.println("[!] IOException at client reasponder for "+this.name);
+    }catch(InterruptedException e){
+    	System.out.println("SEMAPHORE CLIENT RESPONDER ERROR");
     }
 
     
@@ -76,31 +104,43 @@ public class ClientResponder extends Thread{
           int size=in.read(data);
           String cmd = new String(data,0,4,"UTF-8");
           
+          if(size<=0)continue;
+          
+          Game.semph.acquire();
+        //  System.out.println("Responder(main) use semph");
+          
+          
+          synchronized(Game.handler){
           if(cmd.compareTo("map ")==0){
             sendMap();
           }else if(cmd.compareTo("kill")==0){
-          	new BroadcastNotifer(parentServer,data,name);
+          	new BroadcastNotifer(parentServer,data,name,true);
             user.die();
             return;
           }else if(cmd.compareTo("upd ")==0){
           	System.out.println("RECEIVED UPDATE");
           	handler.updatePlayer(data);
           	if(Game.localServer==true)
-          		(new BroadcastNotifer(parentServer,data,name)).start();
+          		(new BroadcastNotifer(parentServer,data,name,true)).start();
           }else if(cmd.compareTo("resp")==0){
           	System.out.println("RECEIVED RESPAWN");
           	Game.handler.respawnPlayer(data);
           	if(Game.localServer==true)
-          	(new BroadcastNotifer(parentServer,data,name)).start(); 	
+          	(new BroadcastNotifer(parentServer,data,name,true)).start(); 	
           }else{
           	break;
           }
+          }
+          
+          Game.semph.release();
           
           
       }catch(SocketTimeoutException e){
           //if(!ping())break;
       }catch(IOException e){
       System.out.println("[!] IOException at client reasponder for "+this.name);
+      }catch(InterruptedException e){
+      	System.out.println("SEMAPHORE CLIENT RESPONDER ERROR");
       }
 
   }

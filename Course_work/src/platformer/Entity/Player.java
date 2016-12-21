@@ -22,6 +22,7 @@ public class Player extends Entity{
   private int invincibilityTime = 0;
   private int particleDelay = 0;
   public String name="John";
+  public boolean fire = true;
   
   
   public Player(int x,int y,int width,int height,boolean soild,Id id,Handler handler){
