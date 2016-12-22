@@ -35,6 +35,7 @@ public class PausePanel extends JPanel{
     });
     backButton.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent event){
+      //	if(Game.multi)Game.client.kill();
         parent.changeLayout("MENU");
       }
     });

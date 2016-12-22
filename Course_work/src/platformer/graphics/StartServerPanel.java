@@ -94,13 +94,23 @@ public class StartServerPanel extends JPanel{
     
     startButton.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e){
+        String str=nameField.getText();
         
+        Game.username="";
+        for(int i=0;i<str.length();i++){
+        	char c = str.charAt(i);
+        	if((c>='A'&&c<='Z')||(c>='a'&&c<='z')||(c>='1'&&c<='9'))
+        		Game.username+=c;
+        }
+        if(Game.username.length()==0)return;
         //Start server and game
      // 	Game.switchLevel();
-        (new Server(Game.handler,7777)).start();
+       // if(Game.server!=null)Game.server.stop();
+        Game.server=new Server(Game.handler,7777);
+    		Game.server.start();
         Game.multi=true;
         Game.localServer=true;
-        Game.username=nameField.getText();
+
         String level=levels.get((String)mapBox.getSelectedItem());
         System.out.println("LEVEL: "+level);
         try {

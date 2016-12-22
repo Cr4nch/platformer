@@ -24,6 +24,7 @@ public class Client extends Thread{
   private Handler handler;
   private InputStream in=null;
   private OutputStream out=null;
+  public boolean alive=true;
   
   public Client(String address,int port,Handler handler){
     this.handler=handler;
@@ -88,7 +89,7 @@ public class Client extends Thread{
     while(true){
     	try{
     		
-    		
+    	if(alive==false)break;	
     	System.out.println("WAIT FOR PACKET");
     	byte[] buffer = new byte[1024];
     	//DatagramPacket packet = new DatagramPacket(buffer,buffer.length);
@@ -103,9 +104,10 @@ public class Client extends Thread{
     	synchronized(Game.handler){
     	if(sign.compareTo("upd ")==0){
     		Game.handler.updatePlayer(buffer);
-    	}else if(sign.compareTo("kill ")==0)
+    	}else if(sign.compareTo("kill ")==0){
+    		Game.handler.killPlayer(buffer);
     		break;
-    	else if(sign.compareTo("resp")==0)
+    	}else if(sign.compareTo("resp")==0)
     		Game.handler.respawnPlayer(buffer);
     	else if(sign.compareTo("add ")==0){
     		Game.handler.addPlayer(buffer);
@@ -143,6 +145,26 @@ public class Client extends Thread{
       bytes = ByteBuffer.allocate(4).putInt(Game.spawnY).array();
       for(int k=0;k<bytes.length;k++)data[++pos]=bytes[k];  
       
+      out.write(data);
+      
+  	}catch(UnsupportedEncodingException e){
+  		return;
+  	}catch(IOException e){
+  		e.printStackTrace();
+  	}
+  }
+  
+  public void kill(){
+  	try{
+  		String msg="kill"+Game.username;
+  		byte[] msgb = msg.getBytes("UTF-8");
+  		byte[] data = new byte[1024];
+  		int pos=msgb.length;
+  		for(int i=0;i<msgb.length;i++){
+  			data[i]=msgb[i];
+  		}
+  		data[pos]=42; 
+      alive=false;
       out.write(data);
       
   	}catch(UnsupportedEncodingException e){

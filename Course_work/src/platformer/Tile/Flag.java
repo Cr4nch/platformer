@@ -13,6 +13,9 @@ public class Flag extends Tile{
   
   @Override
   public void render(Graphics g){
+  	
+  	if(Game.multi)return;
+  	
     g.drawImage(Game.flag[1].getBufferedImage(),x,y,width,height/5,null);
     g.drawImage(Game.flag[0].getBufferedImage(),x,y+height/5,width,height/5,null);
     g.drawImage(Game.flag[0].getBufferedImage(),x,y+height*2/5,width,height/5,null);

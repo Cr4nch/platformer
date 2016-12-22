@@ -63,7 +63,8 @@ public class Player extends Entity{
       if(!t.soild||goingDownPipe)continue;
       
       if(getBounds().intersects(t.getBounds())){
-          if(t.getId()==Id.flag){
+          if(t.getId()==Id.flag && !Game.multi){
+          	
             Game.switchLevel();
           }
           if(t.getId()==Id.magma){
@@ -246,6 +247,7 @@ public class Player extends Entity{
     if(falling&&!goingDownPipe){
       gravity+=0.13;
       setVelY((int)gravity);
+      if(gravity>=5)gravity=5;
     }
     
     if(velX==0 && velY==0){

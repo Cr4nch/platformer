@@ -114,8 +114,8 @@ public class ClientResponder extends Thread{
           if(cmd.compareTo("map ")==0){
             sendMap();
           }else if(cmd.compareTo("kill")==0){
-          	new BroadcastNotifer(parentServer,data,name,true);
-            user.die();
+          	new BroadcastNotifer(parentServer,data,name,false);
+            //user.die();
             return;
           }else if(cmd.compareTo("upd ")==0){
           	System.out.println("RECEIVED UPDATE");

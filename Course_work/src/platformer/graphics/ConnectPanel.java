@@ -79,7 +79,14 @@ public class ConnectPanel extends JPanel{
     connectButton.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e){
       	
-      	Game.username=nameField.getText();
+        String str=nameField.getText();
+        Game.username="";
+        for(int i=0;i<str.length();i++){
+        	char c = str.charAt(i);
+        	if((c>='A'&&c<='Z')||(c>='a'&&c<='z')||(c>='1'&&c<='9'))
+        		Game.username+=c;
+        }
+        if(Game.username.length()==0)return;
       	Game.multi=true;
       	Game.client=new Client(ipField.getText(),Integer.parseInt(portField.getText()),Game.handler);
       	Game.client.start();

@@ -8,6 +8,7 @@ import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.concurrent.Semaphore;
@@ -21,6 +22,7 @@ import platformer.graphics.sprites.SpriteSheet;
 import platformer.input.KeyInput;
 import platformer.input.MouseInput;
 import platformer.net.Client;
+import platformer.net.Server;
 
 public class Game  extends Canvas implements Runnable{
   public static final int WIDTH = 270;
@@ -74,6 +76,7 @@ public class Game  extends Canvas implements Runnable{
   public static Song maintheme;
   
   public static Client client;
+  public static Server server;
   public static boolean multi=false;
   public static boolean localServer=false;
   
@@ -82,15 +85,16 @@ public class Game  extends Canvas implements Runnable{
   public  static BufferedImage image[];
   private BufferedImage background;
   public static BufferedImage menuBackground;
+  public static boolean focus=false;
   
   private void init(){
     handler = new Handler();
     
     jump = new Song("/platformer/res/jump.wav");
-    stomp = new Song("stomp.wav");
-    complete = new Song("complete.wav");
-    loselife = new Song("die.wav");
-    maintheme = new Song("main.wav");
+    stomp = new Song("/platformer/res/stomp.wav");
+    complete = new Song("/platformer/res/complete.wav");
+    loselife = new Song("/platformer/res/die.wav");
+    maintheme = new Song("/platformer/res/main.wav");
     
     try{
     image = new  BufferedImage[5];
@@ -216,6 +220,8 @@ public class Game  extends Canvas implements Runnable{
   }
   
   public void render(){
+  	if(playing && focus)requestFocus();
+  	focus=false;
     BufferStrategy bs =  getBufferStrategy();
     if(bs==null){
       createBufferStrategy(3);

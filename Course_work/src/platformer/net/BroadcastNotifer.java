@@ -2,6 +2,7 @@ package platformer.net;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -32,6 +33,8 @@ public class BroadcastNotifer extends Thread {
 				try{
 				System.out.println("Send update to "+client.name);
 				client.sendUpdate(packet);
+				}catch(SocketException e1){
+					e1.printStackTrace();
 				}catch(IOException event){
 					event.printStackTrace();
 				}

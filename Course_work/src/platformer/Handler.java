@@ -586,6 +586,39 @@ public class Handler{
   	System.out.println("USER RESPAWNED");  	
   }
   
+  public void killPlayer(byte[] data){
+  	try{
+  	//byte[] data = packet.getData();
+  	Player player;
+  	if(new String(data,0,4).compareTo("resp")!=0){
+  		System.out.println("Error: invalid respawn signature!");
+  		return;
+  	}
+  	int pos=4;
+    int posEnd=pos;
+    while(data[posEnd]!=42)posEnd++;
+    String name=new String(data,pos,posEnd-pos,"UTF-8");
+    pos=posEnd; 
+  	if(data[pos]!=42){
+  		System.out.println("Error: invalid canary byte!");
+  		return;  		
+  	}
+  	pos++;
+    System.out.println("Update player "+name);
+    for(Entity e:entity){
+   	 if(e instanceof Player)
+   		 if(((Player)e).name.compareTo(name)==0){
+   			 e.die();
+   			 
+    }
+    }
+    
+  	}catch(UnsupportedEncodingException e){
+  		e.printStackTrace();
+  	}
+  	System.out.println("USER RESPAWNED");  	
+  }
+  
   public void updatePlayer(byte[] data){
   	try{
   	//byte[] data = packet.getData();
